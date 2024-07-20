@@ -8,10 +8,24 @@ chrome.runtime.onInstalled.addListener(() => {
   
   chrome.contextMenus.onClicked.addListener((info, tab) => {
     if (info.menuItemId === "changeTitle") {
-      chrome.scripting.executeScript({
-        target: {tabId: tab.id},
-        files: ['content.js']
+      executeScriptToChangeTitle(tab.id);
+    }
+  });
+  
+  chrome.commands.onCommand.addListener((command) => {
+    if (command === "change-title") {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        if (tabs.length > 0) {
+          executeScriptToChangeTitle(tabs[0].id);
+        }
       });
     }
   });
+  
+  function executeScriptToChangeTitle(tabId) {
+    chrome.scripting.executeScript({
+      target: { tabId: tabId },
+      files: ['content.js']
+    });
+  }
   
